@@ -23,7 +23,7 @@ namespace UslmRemoveTags.Abstract
         {
             get
             {
-                return $"{ApplicationName} v1";
+                return $"{ApplicationName} v2";
             }
         }
 

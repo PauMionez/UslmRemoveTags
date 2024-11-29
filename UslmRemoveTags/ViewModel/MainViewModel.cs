@@ -140,16 +140,22 @@ namespace UslmRemoveTags.ViewModel
                 //var NormalTagPattern = @"<normal[^>]*>[^<]*$";
                 //var NormalTagPattern = @"<normal[^>]*>.*?$";
                 //var NormalTagPattern = @"<normal[^>]*>.*$";
+                //var BTagPattern = @"</?b[^>]*>";
 
 
                 //Regex pattern to match <normal> and </normal> tags (and any attributes within)
                 var NormalTagPattern = @"</?normal[^>]*>";
+                var BTagPattern = @"<b>(.*?)</b>";
+
 
                 //var RemoveAllTags = new Regex(pattern, RegexOptions.IgnoreCase);
                 var incompleteCloseTagRegex = new Regex(NormalTagPattern, RegexOptions.IgnoreCase);
+                var BTagRegex = new Regex(BTagPattern, RegexOptions.IgnoreCase);
 
                 //Remove all <normal>...</normal> tags
-                string cleanedContent = incompleteCloseTagRegex.Replace(content, ""); ;
+                string cleanedContent = incompleteCloseTagRegex.Replace(content, "");
+
+                cleanedContent = BTagRegex.Replace(cleanedContent, "$1");
 
                 // Check if the content is empty after cleaning
                 if (string.IsNullOrWhiteSpace(cleanedContent))
@@ -179,8 +185,12 @@ namespace UslmRemoveTags.ViewModel
             var lines = content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
 
             // Regex to match <normal> tags (with or without content)
-            var pattern = @"<normal[^>]*>(.*?)</normal\s*[^>]*>";
-            var regex = new Regex(pattern, RegexOptions.IgnoreCase);
+            var normalpattern = @"<normal[^>]*>(.*?)</normal\s*[^>]*>";
+            var normalregex = new Regex(normalpattern, RegexOptions.IgnoreCase);
+
+            //// Regex to match <b> tags (with or without content)
+            //var Bpattern = @"<b[^>]*>(.*?)</b\s*[^>]*>";
+            //var Bregex = new Regex(Bpattern, RegexOptions.IgnoreCase);
 
             //// Regex to match <normal> tag only (missing close tag "</normal>")
             //var missingCloseTagPattern = @"<normal[^>]*>[^<]*$";
@@ -191,16 +201,25 @@ namespace UslmRemoveTags.ViewModel
             // Iterate through each line and check for empty <normal> tags
             for (int i = 0; i < lines.Length; i++)
             {
-                var emptymatch = regex.Match(lines[i]);
+                var normalemptymatch = normalregex.Match(lines[i]);
+                //var Bemptymatch = Bregex.Match(lines[i]);
                 //var missingCloseTag = Regex.Match(lines[i], missingCloseTagPattern);
                 //var closingTagOnlyMatch = Regex.Match(lines[i], closingTagOnlyPattern);
 
                 // If the line contains a <normal> tag with no content between the tags
-                if (emptymatch.Success && string.IsNullOrWhiteSpace(emptymatch.Groups[1].Value))
+                if (normalemptymatch.Success && string.IsNullOrWhiteSpace(normalemptymatch.Groups[1].Value))
                 {
                     //emptyTagLines.Add(i + 1); // Store line number (1-based index)
-                    emptyTagLines.Add($"Line {i + 1} = Empty Tag");
+                    emptyTagLines.Add($"Line {i + 1} = <normal> Empty Tag");
                 }
+
+                //// If the line contains a <b> tag with no content between the tags
+                //if (Bemptymatch.Success && string.IsNullOrWhiteSpace(Bemptymatch.Groups[1].Value))
+                //{
+                //    //emptyTagLines.Add(i + 1); // Store line number (1-based index)
+                //    emptyTagLines.Add($"Line {i + 1} = <b> Empty Tag");
+                //}
+                
 
                 //if (missingCloseTag.Success)
                 //{
@@ -214,7 +233,7 @@ namespace UslmRemoveTags.ViewModel
                 //}
             }
 
-            
+
 
             // Add empty tag errors if any
             //if (emptyTagLines.Count > 0)
@@ -236,6 +255,7 @@ namespace UslmRemoveTags.ViewModel
 
             // Return combined error messages or null if no errors
             //return errorMessages.Count > 0 ? string.Join("\n", errorMessages) : null;
+            //return string.Join(Environment.NewLine, emptyTagLines);
             return emptyTagLines.Count > 0 ? string.Join("\n", emptyTagLines) : null;
         }
 
@@ -250,7 +270,7 @@ namespace UslmRemoveTags.ViewModel
             try
             {
                 //Combine filename with date in output filename
-                string cleanedFileName = System.IO.Path.GetFileNameWithoutExtension(FileFullPath) + $"_cleaned_{DateTime.Now:MM-dd-yyyy_HH-mm-ss}.txt";
+                string cleanedFileName = System.IO.Path.GetFileNameWithoutExtension(FileFullPath) + $"_Cleaned_{DateTime.Now:MM-dd-yyyy_HH-mm-ss}.txt";
                 string cleanedFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(FileFullPath), cleanedFileName);
 
                 //Create new cleaned .txt

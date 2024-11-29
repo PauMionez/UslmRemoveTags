@@ -25,6 +25,8 @@
             <TextBlock Margin="15 10 0 0">
                 <Run Text="Drag .txt file to remove"/>
                 <Run Text="&lt;normal&gt;" Foreground="Red" />
+                <Run Text="and" />
+                <Run Text="&lt;b&gt;" Foreground="Red" />
                 <Run Text="tags"/>
             </TextBlock>
 
